@@ -11,7 +11,7 @@ export const database = [
   },
   {
     id: 345,
-    name: "Here we go again",
+    name: "Sleep",
     status: false
   },
 ]

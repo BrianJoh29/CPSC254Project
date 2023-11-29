@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <main>
       <InputBox taskList={taskList} setTaskList={setTaskList}/>
-      <TaskList taskList={taskList}/>
+      <TaskList taskList={taskList} setTaskList={setTaskList}/>
     </main>
   )
 }
