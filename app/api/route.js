@@ -1,17 +1,21 @@
 import prisma from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';
-export const DELETE = async (req) => {
-  const {Id} = await req.json()
+export const PATCH = async (req) => {
+  const {Id, Name, Status} = await req.json()
 
   try {
-      const deleteTask = await prisma.Tasks.delete({
+      const editedTask = await prisma.Tasks.update({
         where: {
           Id: Id,
-        }
+        },
+        data: {
+          Name: Name,
+          Status: Status
+        },
       })
       
-      return Response.json(deleteTask)
+      return Response.json(editedTask)
   } catch (error) {
       return Response.error()
   }
