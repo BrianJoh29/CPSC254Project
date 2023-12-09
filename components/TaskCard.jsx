@@ -7,15 +7,54 @@ import { RxCrossCircled } from "react-icons/rx";
 import { useState } from "react";
 
 const TaskCard = ({id, name, status, taskList, setTaskList}) => {
-  const[taskStatus, setTaskStatus] = useState(status)
-  
   const[modal, setModal] = useState(false)
-  
+  const[taskStatus, setTaskStatus] = useState(status)
   const[currentName, setCurrentName] = useState(name)
   const[updateName, setUpdateName] = useState(name)
   
-  const changeStatus = () => {
+  const changeName = async () => {
+    // make sure string is not empty
+    if(updateName != ""){
+      // updates the client-side/frontend
+      setCurrentName(updateName)
+      setModal(!modal)
+      setTaskStatus(false)
+
+      //updates the server-side/backend
+      try{
+        const res = await fetch(
+          '/api/edit-task', {
+            method: 'PATCH',
+            body: JSON.stringify({
+              Id: id,
+              Name: updateName,
+              Status: false
+            })
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  }
+
+  const changeStatus = async () => {
+    // updates the client-side/frontend
     setTaskStatus(!taskStatus)
+
+    // updates the server-side/backend
+    try{
+      const res = await fetch(
+        '/api/edit-task', {
+          method: 'PATCH',
+          body: JSON.stringify({
+            Id: id,
+            Name: currentName,
+            Status: !taskStatus
+          })
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   const toggleModal = () => {
@@ -23,33 +62,44 @@ const TaskCard = ({id, name, status, taskList, setTaskList}) => {
     setUpdateName(currentName)
   }
 
-  const saveChange = () => {
-    if(updateName != "")
-    {
-      setCurrentName(updateName)
-      setModal(!modal)
-    }
-  }
-
-  const deleteItem = () => {
-    const newTaskList = taskList.filter((task) => task.id !== id)
-    console.log(newTaskList)
+  const deleteItem = async () => {
+    // updates on the client-side/frontend
+    // removes the current item from the list
+    const newTaskList = taskList.filter((task) => task.Id !== id)
+    // sets taskList to the new filtered list
     setTaskList(newTaskList)
+
+    // updates on the server-side/backend
+    try{
+      const res = await fetch(
+        '/api/delete-task', {
+          method: 'DELETE',
+          body: JSON.stringify({
+            Id: id,
+          })
+      })
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   return (
     <>
-      <div className="bg-white w-[45%] min-h-[96px] rounded shadow-[28px_48px_76px_-44px_rgba(88,69,133,1)] flex items-center">
-        <button type="button" onClick={toggleModal} className="grow text-left ml-5 break-words p-3 text-3xl">
+      <div className="transition-all duration-300 ease-in-out bg-white w-96 min-h-[96px] 
+      rounded-lg hover:shadow-[5px_30px_70px_-25px_rgba(0,0,0,1)] 
+        shadow-[28px_48px_76px_-44px_rgba(88,69,133,1)] hover:-translate-y-[5px] 
+        grid grid-cols-5"
+      >
+        <button type="button" onClick={toggleModal} className="p-5 text-3xl text-justify col-span-4">
           {currentName}
         </button>
-        <button onClick={changeStatus} className="mr-5">
-          {taskStatus ? 
-            <FaRegCheckCircle className="text-[#618053]" size={30}/> 
-            : 
-            <RxCrossCircled className="text-red-600" size={30}/>
-          }
-        </button>
+        {taskStatus ? 
+          <FaRegCheckCircle onClick={changeStatus} 
+          className="justify-self-end self-center m-6 text-[#618053] cursor-pointer" size={30}/> 
+          : 
+          <RxCrossCircled onClick={changeStatus} 
+          className="justify-self-end self-center m-6 text-red-600 cursor-pointer" size={30}/>
+        }
       </div>
 
       { modal && (
@@ -90,7 +140,7 @@ const TaskCard = ({id, name, status, taskList, setTaskList}) => {
               <button className="text-red-500" type="button" onClick={deleteItem}>
                 Delete
               </button>
-              <button className="text-blue-500" type="button" onClick={saveChange}>
+              <button className="text-blue-500" type="button" onClick={changeName}>
                 Save
               </button>
             </div>
