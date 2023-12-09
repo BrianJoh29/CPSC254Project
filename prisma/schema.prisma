@@ -1,0 +1,22 @@
+// schema.prisma
+// Object-relational mapping (ORM) is a way to align programming code with database structures
+// create a translator so that our code can communicate with the database
+// maps fields to help translate
+// we don't have to use sql commands to get data from our db
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+model Tasks {
+  Id            String     @default(cuid()) @id
+  Name          String
+  Status        Boolean
+  createdAt     DateTime   @default(now()) @map(name: "created_at")
+}
